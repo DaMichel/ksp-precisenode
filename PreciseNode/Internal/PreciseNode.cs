@@ -157,6 +157,17 @@ namespace RegexKSP {
 						options.clockWindowPos.height = 0;
                         options.clockWindowPos.width = 0;
 					}
+					//DaMichel: resize all windows when the gui style changes
+					if(curState.resizeOtherWindows) {
+						options.optionsWindowPos.height = 0;
+						options.keymapperWindowPos.height = 0;
+						options.conicsWindowPos.height = 0;
+						options.tripWindowPos.height = 0;
+						options.optionsWindowPos.width = 0;
+						options.keymapperWindowPos.width = 0;
+						options.conicsWindowPos.width = 0;
+						options.tripWindowPos.width = 0;
+					}
 					showEncounter = curState.encounter;
 					// this prevents the clock window from showing the time to
 					// next node when the next state is created during repaint.
@@ -185,8 +196,9 @@ namespace RegexKSP {
 			options.mainWindowPos = GUILayout.Window(mainWindowId, options.mainWindowPos, (id) => drawMainWindow(),
 				"Precise Node", GUILayout.ExpandHeight(true));
 			if(showOptions) {
+				//DaMichel: added hardcoded minimal width. See GUIParts.
 				options.optionsWindowPos = GUILayout.Window(optionsWindowId, options.optionsWindowPos, (id) => drawOptionsWindow(),
-					"Precise Node Options", GUILayout.ExpandHeight(true), GUILayout.MinWidth(100));
+					"Precise Node Options", GUILayout.ExpandHeight(true), GUILayout.MinWidth(GUIParts.optionsWindowSize));
 			}
 			if(showKeymapper) {
 				options.keymapperWindowPos = GUILayout.Window(keymapperWindowId, options.keymapperWindowPos, (id) => drawKeymapperWindow(),
@@ -631,6 +643,7 @@ namespace RegexKSP {
                 options.useKspSkin = temp;
                 curState.resizeMainWindow = true;
                 curState.resizeClockWindow = true;
+				curState.resizeOtherWindows = true;
             }
 
 #if NODE_CLEANUP

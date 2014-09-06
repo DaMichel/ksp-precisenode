@@ -40,88 +40,85 @@ namespace RegexKSP {
             internal const int UNITY = 2;
         };
         private  static int currentSkin = CurrentSkin.UNINITIALIZED;
-        private  static GUISkin  skin = null;
-        internal static GUIStyle styleFramed = null;
-        internal static GUIStyle styleFrameless = null;
+        private  static GUISkin  skin = null; // reference to the actual current skin
+        internal static GUIStyle styleFramed = null; // for group
+        internal static GUIStyle styleFrameless = null; // to get margins & padding around elements which are not grouped with a visible border
         internal static GUIStyle styleNodeControlTextField = null; // prograde, normal, radial text field style
         internal static GUIStyle styleDataDisplayText = null; // DV, ejection angle etc.
-        internal static GUIStyle stylePagerButtons = null;
-        //internal static GUIStyle styleNonResizingButton = null;
+        internal static GUIStyle stylePagerButtons = null; // a little bit bigger
+		// widths for stuff on the left column
         internal static float    leftColumnDataWidth = 110;
-        internal static float    leftColumnNodeWidth = 75;
+        internal static float    leftColumnNodeWidth = 80;
         internal static float    leftColumnWidth     = 100;
-        internal static float    plusMinusButtonWidth = 50;
-        internal static float    nodeControlTextFieldWidth = 100;
+        internal static float    nodeControlTextFieldWidth = 90;
+		// The SKP skin does not resize according to the width of toggle controls.
+		// So we have to make a little hack. The content here should reflect the longest string among the options.
+		// //float width = GUI.skin.toggle.CalcSize(new GUIContent("Show additional UT controls")).x;
+		// Ups .. this also does not work so ...
+		internal static float    optionsWindowSize;
 
+		/* Set GUI.skin to the proper value. Construct a new GUISkin instance based on
+		 * the either the KSP skin or the Unity skin. */
         internal static void initGUI(bool useKspSkin)
         {
             if (currentSkin != (useKspSkin ? CurrentSkin.KSP : CurrentSkin.UNITY))
             {
                 if (useKspSkin)
                 {
-                    //Debug.Log("PreciseNode: switch to KSP skin");
                     Color labelColor = new Color(200, 200, 200);
 
                     skin = (GUISkin)GUISkin.Instantiate(HighLogic.Skin); // make a copy of the KSP skin
 
+					// The KSP skin has large top padding and a few pixels on the other edges.
+					// I want a much thinner than default border.
                     RectOffset r = skin.window.padding;
-                    skin.window.padding = new RectOffset(3,2,r.top,3); // the KSP skin has large top padding and a few pixels on the other edges
+                    skin.window.padding = new RectOffset(3,2,r.top,3);
 
                     styleFramed = skin.box;
-                    //styleFramed.margin = new RectOffset(1,1,1,1); // seems to have some 1px top, left and right margin by default
 
                     styleFrameless = new GUIStyle();
                     styleFrameless.padding = styleFramed.padding;
                     styleFrameless.margin  = styleFramed.margin;
-
-                    //skin.label.fontSize = 13;
-                    //skin.box.fontSize = 13;
-                    //skin.button.fontSize = 13;
-                    //skin.textField.fontSize = 13;
-            
+           
                     skin.button.alignment = TextAnchor.MiddleCenter;
-                    skin.button.padding = new RectOffset(4, 4, 2, 1);
-                    //skin.button.margin  = new RectOffset(0, 0, 0, 0);
+                    skin.button.padding = new RectOffset(6, 6, 2, 1); // any lower than 6 pixel and single letter buttons aren't drawn correctly
                     skin.button.fontStyle = FontStyle.Normal;
             
                     skin.textField.padding = new RectOffset(5, 4, 2, 1);
-                    //skin.textField.margin = new RectOffset(0, 0, 0, 0);
                     skin.textField.alignment = TextAnchor.MiddleLeft;
                     skin.textField.fontStyle = FontStyle.Normal;
-                
+
+					// The text field text is yellowish by default which 
+					// does not work when modulated with prograde/normal/radial colors.
+					// Therefore the color is set to white.               
                     styleNodeControlTextField = new GUIStyle(skin.textField);
                     styleNodeControlTextField.normal.textColor = Color.white;
                     styleNodeControlTextField.hover.textColor = Color.white;
                     styleNodeControlTextField.active.textColor = Color.white;
                     styleNodeControlTextField.focused.textColor = Color.white;
-                    //styleNodeControlTextField.stretchWidth = false;
-                    //styleNodeControlTextField.fixedWidth = nodeControlTextFieldWidth;
 
                     skin.label.padding = new RectOffset(1, 1, 2, 1);
-                    //skin.label.margin = new RectOffset(0, 0, 0, 0);
                     skin.label.alignment = TextAnchor.MiddleLeft;
                     skin.label.wordWrap = false;
 
                     styleDataDisplayText = new GUIStyle(skin.label);
 
-                    skin.toggle.stretchWidth = true;
-                    skin.label.normal.textColor = labelColor;
+                    skin.label.normal.textColor = labelColor; // make the labels light grey, and the data text default green
 
                     stylePagerButtons = new GUIStyle(skin.button);
                     stylePagerButtons.fontStyle = FontStyle.Bold;
                     stylePagerButtons.padding = new RectOffset(6, 6, 6, 4);
 
-                    //styleNonResizingButton = new GUIStyle(skin.button);
-                    //styleNonResizingButton.stretchWidth = false;
-                    //styleNonResizingButton.padding = skin.button.padding.add(3, 3, 0, 0);
-                    
+					optionsWindowSize = 230;
+
                     currentSkin = CurrentSkin.KSP;
                 }
                 else
                 {
-                    //Debug.Log("PreciseNode: switch to Unity skin");
-                    GUI.skin = null;
-                    skin = (GUISkin)GUISkin.Instantiate(GUI.skin);
+					// just copy the unity skin. 
+                    GUI.skin = null; // this way we reset the current skin to the default
+                    skin = GUI.skin; // and this actually returns a non-null reference.
+					// I prefer to make a copy here 
                     styleFramed = new GUIStyle();
                     styleFramed.padding = skin.box.padding;
                     styleFramed.margin  = skin.box.margin;
@@ -131,11 +128,10 @@ namespace RegexKSP {
                     styleNodeControlTextField = new GUIStyle(skin.textField);
                     styleDataDisplayText = new GUIStyle(skin.label); // DV, ejection angle etc.
                     stylePagerButtons = new GUIStyle(skin.button);
-                    //styleNonResizingButton = new GUIStyle(skin.button);
+					optionsWindowSize = 0; // automatic sizing works here
                     currentSkin = CurrentSkin.UNITY;
                 }
             }
-            //else Debug.Log("PreciseNode: keeping skin " + currentSkin);
             GUI.skin = skin;
         }
 
@@ -198,7 +194,7 @@ namespace RegexKSP {
 						}
 						break;
 				}
-			}, skin.button, GUILayout.Width(plusMinusButtonWidth));
+			}, skin.button);
 			GUI.enabled = oldEnabled;
 		}
 	}

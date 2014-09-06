@@ -38,6 +38,7 @@ namespace RegexKSP {
 		internal bool encounter;
 		internal bool resizeMainWindow;
 		internal bool resizeClockWindow;
+		internal bool resizeOtherWindows;
 
 		internal bool progradeParsed = true;
 		internal bool radialParsed = true;
