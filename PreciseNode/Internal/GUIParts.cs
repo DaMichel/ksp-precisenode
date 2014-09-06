@@ -65,7 +65,7 @@ namespace RegexKSP {
             {
                 if (useKspSkin)
                 {
-                    Color labelColor = new Color(200, 200, 200);
+                    Color32 labelColor = new Color32(240, 240, 240, 255);
 
                     skin = (GUISkin)GUISkin.Instantiate(HighLogic.Skin); // make a copy of the KSP skin
 
