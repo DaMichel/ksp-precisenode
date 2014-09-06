@@ -118,7 +118,6 @@ namespace RegexKSP {
 					// just copy the unity skin. 
                     GUI.skin = null; // this way we reset the current skin to the default
                     skin = GUI.skin; // and this actually returns a non-null reference.
-					// I prefer to make a copy here 
                     styleFramed = new GUIStyle();
                     styleFramed.padding = skin.box.padding;
                     styleFramed.margin  = skin.box.margin;
